@@ -51,9 +51,9 @@ class Recognizer:
         table_pred = y_pred.reshape(-1, len(self.chars)+1)
         res = table_pred.argmax(axis=1)
         for i,one in enumerate(res):
-            if one<len(self.chars) and (i==0 or (one!=res[i-1])):
-                results+= self.chars[one]
-                confidence+=table_pred[i][one]
+            if one < len(self.chars) and (i == 0 or (one != res[i-1])):
+                results += self.chars[one]
+                confidence += table_pred[i][one]
         confidence /= len(results)
         return results,confidence
 
