@@ -1,28 +1,10 @@
-import sys
-reload(sys)
-sys.setdefaultencoding("utf-8")
-
-
-
+# coding : utf-8
 
 import time
-
-def SpeedTest(image_path):
-    grr = cv2.imread(image_path)
-    model = pr.LPR("model/cascade.xml", "model/model12.h5", "model/ocr_plate_all_gru.h5")
-    model.SimpleRecognizePlateByE2E(grr)
-    t0 = time.time()
-    for x in range(20):
-        model.SimpleRecognizePlateByE2E(grr)
-    t = (time.time() - t0)/20.0
-    print "Image size :" + str(grr.shape[1])+"x"+str(grr.shape[0]) +  " need " + str(round(t*1000,2))+"ms"
-
-    
-
 from PIL import ImageFont
 from PIL import Image
 from PIL import ImageDraw
-fontC = ImageFont.truetype("./Font/platech.ttf", 14, 0)
+fontC = ImageFont.truetype("./sources/fonts/platech.ttf", 14, 0)
 
 def drawRectBox(image,rect,addText):
     cv2.rectangle(image, (int(rect[0]), int(rect[1])), (int(rect[0] + rect[2]), int(rect[1] + rect[3])), (0,0, 255), 2,cv2.LINE_AA)
@@ -30,30 +12,53 @@ def drawRectBox(image,rect,addText):
                   cv2.LINE_AA)
     img = Image.fromarray(image)
     draw = ImageDraw.Draw(img)
-    draw.text((int(rect[0]+1), int(rect[1]-16)), addText.decode("utf-8"), (255, 255, 255), font=fontC)
+    draw.text((int(rect[0]+1), int(rect[1]-16)), addText, (255, 255, 255), font=fontC)
     imagex = np.array(img)
     return imagex
 
 
-
-
-
-import HyperLPRLite as pr
+import lpr as pr
 import cv2
 import numpy as np
-grr = cv2.imread("images_rec/2_.jpg")
-model = pr.LPR("model/cascade.xml","model/model12.h5","model/ocr_plate_all_gru.h5")
-for pstr,confidence,rect in model.SimpleRecognizePlateByE2E(grr):
-        if confidence>0.7:
-            image = drawRectBox(grr, rect, pstr+" "+str(round(confidence,3)))
-            print "plate_str:"
-            print pstr
-            print "plate_confidence"
-            print confidence
-            
-cv2.imshow("image",image)
-cv2.waitKey(0)
+import os
+
+model = pr.LPR("./sources/model/cascade.xml","./sources/model/model12.h5","./sources/model/ocr_plate_all_gru.h5")
+
+def detect(grr):
+    # grr = cv2.imread(image)
+    t1 = time.time()
+    results = model.simple_detection_recognition(grr)
+    t2 = time.time()
+    print("Time used:", t2 - t1, "s")
+
+    for pstr,confidence,rect in results:
+        if confidence > 0.7:
+            grr = drawRectBox(grr, rect, pstr+" "+str(round(confidence,3)))
+            print ("plate_str:")
+            print (pstr)
+            print ("plate_confidence")
+            print (confidence)
+
+    return grr
+
+if __name__ == "__main__":
+    video_path = "/home/nicholas/data/Videos/Video1.mp4"
+    cap = cv2.VideoCapture(video_path)
+    while(1):
+        _, frame = cap.read()
+        height = frame.shape[0]
+        width = frame.shape[1]
+        scale = 1.0
+        frame = cv2.resize(frame, (int(width * scale), int(height * scale)))
+        # frame = cv2.rotate(frame, cv2.ROTATE_180)
+        cv2.imshow("test", detect(frame))
+        k = cv2.waitKey(2)
+        if k & 0xFF == ord(' '):
+            cv2.waitKey(0)
+        elif k & 0xFF == ord('q'):
+            break
+        
+    cap.release()
+    cv2.destroyAllWindows()
 
 
-
-SpeedTest("images_rec/2_.jpg")
