@@ -31,9 +31,9 @@ def detect(grr):
     t2 = time.time()
     print("Time used:", t2 - t1, "s")
 
-    for pstr,confidence,rect in results:
+    for pstr, confidence, rect in results:
         if confidence > 0.7:
-            grr = drawRectBox(grr, rect, pstr+" "+str(round(confidence,3)))
+            grr = drawRectBox(grr, rect, pstr + " " + str(round(confidence,3)))
             print ("plate_str:")
             print (pstr)
             print ("plate_confidence")
