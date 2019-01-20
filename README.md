@@ -18,7 +18,7 @@ Forked from HyperLPR by Zeusee.
 ### Python 依赖
 
 + Keras (>2.0.0)
-+ Theano(>0.9) or Tensorflow(>1.1.x)
++ Tensorflow(>1.1.x)
 + Numpy (>1.10)
 + Scipy (0.19.1)
 + OpenCV(>3.0)
